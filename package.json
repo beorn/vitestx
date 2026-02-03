@@ -1,14 +1,13 @@
 {
   "name": "vitestx",
   "version": "0.1.0",
-  "description": "Vitest extension with ergonomic fuzz testing",
+  "description": "Vitest extension with fuzz testing",
   "type": "module",
   "module": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./ergonomic": "./src/ergonomic/index.ts",
     "./plugin": "./src/plugin.ts",
-    "./fuzz": "./src/fuzz/terms/index.ts",
+    "./fuzz": "./src/fuzz/index.ts",
     "./chaos": "./src/chaos/index.ts"
   },
   "files": [

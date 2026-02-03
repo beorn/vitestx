@@ -1,9 +1,9 @@
 /**
- * Ergonomic fuzz testing API
+ * Fuzz testing API
  *
  * @example
  * ```typescript
- * import { test, gen, take, createSeededRandom } from '@beorn/vitestx/ergonomic'
+ * import { test, gen, take, createSeededRandom } from 'vitestx/fuzz'
  *
  * // Simple random from array
  * test('navigation', async () => {
@@ -82,14 +82,3 @@ export {
 // Re-export random utilities
 export { createSeededRandom, parseSeed, type SeededRandom } from '../random.js'
 
-// Fuzz terms (Provider-based)
-export {
-	createFuzzTerm,
-	createReplayTerm,
-	type FuzzTermProvider,
-	type FuzzTermOptions,
-	type FuzzPick,
-	type FuzzState,
-	type ReplayTermProvider,
-	type ReplayTermOptions,
-} from '../fuzz/terms/index.js'

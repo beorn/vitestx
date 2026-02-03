@@ -1,5 +1,5 @@
 /**
- * Tests for the ergonomic fuzz API (gen, take, test.fuzz)
+ * Tests for the fuzz API (gen, take, test.fuzz)
  */
 import { describe, it, expect } from 'vitest'
 import {
@@ -10,7 +10,7 @@ import {
 	createFuzzContext,
 	createReplayContext,
 	shrinkSequence,
-} from '../src/ergonomic/index.js'
+} from '../src/fuzz/index.js'
 
 describe('gen()', () => {
 	it('generates from array picker', async () => {

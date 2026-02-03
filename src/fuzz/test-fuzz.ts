@@ -3,7 +3,7 @@
  *
  * Usage:
  * ```typescript
- * import { test } from '@beorn/vitestx/ergonomic'
+ * import { test } from 'vitestx/fuzz'
  *
  * test.fuzz('cursor invariants', async () => {
  *   const handle = await run(<Board />, { cols: 80, rows: 24 })
