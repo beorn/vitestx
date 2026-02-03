@@ -1,14 +1,14 @@
 {
   "name": "vitestx",
   "version": "0.1.0",
-  "description": "Vitest extension with fuzz and AI testing modes",
+  "description": "Vitest extension with ergonomic fuzz testing",
   "type": "module",
   "module": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./ergonomic": "./src/ergonomic/index.ts",
     "./plugin": "./src/plugin.ts",
-    "./cli": "./src/cli/index.ts"
+    "./terms": "./src/fuzz/terms/index.ts"
   },
   "files": [
     "dist",
@@ -23,12 +23,7 @@
   "peerDependencies": {
     "vitest": ">=2.0.0"
   },
-  "dependencies": {
-    "ai": "^4.0.0",
-    "@ai-sdk/anthropic": "^1.0.0",
-    "@ai-sdk/openai": "^1.0.0",
-    "glob": "^11.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.9.3",
@@ -40,7 +35,6 @@
     "fuzz",
     "fuzzing",
     "property-based-testing",
-    "ai",
     "testing"
   ],
   "repository": {
