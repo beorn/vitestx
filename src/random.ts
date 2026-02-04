@@ -19,7 +19,10 @@ export interface SeededRandom {
   pick<T>(array: readonly T[]): T
 
   /** Pick a random element with weights */
-  weightedPick<T extends string>(items: readonly T[], weights: Partial<Record<T, number>>): T
+  weightedPick<T extends string>(
+    items: readonly T[],
+    weights: Partial<Record<T, number>>,
+  ): T
 
   /** Shuffle an array (returns new array) */
   shuffle<T>(array: readonly T[]): T[]
@@ -77,14 +80,14 @@ export function createSeededRandom(seed?: number): SeededRandom {
 
     pick<T>(array: readonly T[]): T {
       if (array.length === 0) {
-        throw new Error('Cannot pick from empty array')
+        throw new Error("Cannot pick from empty array")
       }
       return array[random.int(0, array.length - 1)]
     },
 
     weightedPick<T extends string>(
       items: readonly T[],
-      weights: Partial<Record<T, number>>
+      weights: Partial<Record<T, number>>,
     ): T {
       // Build cumulative weights
       const cumulative: { item: T; cumWeight: number }[] = []
@@ -137,8 +140,8 @@ export function createSeededRandom(seed?: number): SeededRandom {
 /**
  * Parse seed from environment or generate random
  */
-export function parseSeed(source: 'env' | 'random' = 'env'): number {
-  if (source === 'env') {
+export function parseSeed(source: "env" | "random" = "env"): number {
+  if (source === "env") {
     const envSeed = process.env.FUZZ_SEED
     if (envSeed) {
       const parsed = parseInt(envSeed, 10)

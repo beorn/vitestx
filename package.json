@@ -2,6 +2,23 @@
   "name": "vitestx",
   "version": "0.1.0",
   "description": "Vitest extension with fuzz testing",
+  "keywords": [
+    "fuzz",
+    "fuzzing",
+    "property-based-testing",
+    "testing",
+    "vitest"
+  ],
+  "license": "MIT",
+  "author": "Beorn",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beorn/vitestx"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "type": "module",
   "module": "./src/index.ts",
   "exports": {
@@ -10,37 +27,20 @@
     "./fuzz": "./src/fuzz/index.ts",
     "./chaos": "./src/chaos/index.ts"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest",
     "test:run": "vitest run",
     "prepublishOnly": "bun run build"
   },
-  "peerDependencies": {
-    "vitest": ">=2.0.0"
-  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vitest": "^4.0.0"
   },
-  "keywords": [
-    "vitest",
-    "fuzz",
-    "fuzzing",
-    "property-based-testing",
-    "testing"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/beorn/vitestx"
-  },
-  "license": "MIT",
-  "author": "Beorn"
+  "peerDependencies": {
+    "vitest": ">=2.0.0"
+  }
 }

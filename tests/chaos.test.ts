@@ -2,8 +2,8 @@
  * Tests for chaos stream transformers
  */
 
-import { describe, test, expect } from 'vitest'
-import { createSeededRandom } from '../src/random.js'
+import { describe, test, expect } from "vitest"
+import { createSeededRandom } from "../src/random.js"
 import {
   drop,
   reorder,
@@ -14,7 +14,7 @@ import {
   chaos,
   builtinChaosRegistry,
   type ChaosRegistry,
-} from '../src/chaos/index.js'
+} from "../src/chaos/index.js"
 
 // Helper: collect all items from an async iterable
 async function collect<T>(source: AsyncIterable<T>): Promise<T[]> {
@@ -32,9 +32,9 @@ async function* fromArray<T>(items: T[]): AsyncGenerator<T> {
 
 const ITEMS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-describe('chaos transformers', () => {
-  describe('drop', () => {
-    test('drops items probabilistically', async () => {
+describe("chaos transformers", () => {
+  describe("drop", () => {
+    test("drops items probabilistically", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(drop(fromArray(ITEMS), 0.5, rng))
 
@@ -48,27 +48,31 @@ describe('chaos transformers', () => {
       }
     })
 
-    test('rate 0 drops nothing', async () => {
+    test("rate 0 drops nothing", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(drop(fromArray(ITEMS), 0, rng))
       expect(result).toEqual(ITEMS)
     })
 
-    test('rate 1 drops everything', async () => {
+    test("rate 1 drops everything", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(drop(fromArray(ITEMS), 1, rng))
       expect(result).toEqual([])
     })
 
-    test('is deterministic with same seed', async () => {
-      const result1 = await collect(drop(fromArray(ITEMS), 0.3, createSeededRandom(123)))
-      const result2 = await collect(drop(fromArray(ITEMS), 0.3, createSeededRandom(123)))
+    test("is deterministic with same seed", async () => {
+      const result1 = await collect(
+        drop(fromArray(ITEMS), 0.3, createSeededRandom(123)),
+      )
+      const result2 = await collect(
+        drop(fromArray(ITEMS), 0.3, createSeededRandom(123)),
+      )
       expect(result1).toEqual(result2)
     })
   })
 
-  describe('reorder', () => {
-    test('shuffles items within window', async () => {
+  describe("reorder", () => {
+    test("shuffles items within window", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(reorder(fromArray(ITEMS), 5, rng))
 
@@ -76,28 +80,32 @@ describe('chaos transformers', () => {
       expect(result.sort((a, b) => a - b)).toEqual(ITEMS)
     })
 
-    test('window size 1 preserves order', async () => {
+    test("window size 1 preserves order", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(reorder(fromArray(ITEMS), 1, rng))
       expect(result).toEqual(ITEMS)
     })
 
-    test('preserves all items', async () => {
+    test("preserves all items", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(reorder(fromArray(ITEMS), 3, rng))
       expect(result.length).toBe(ITEMS.length)
       expect(result.sort((a, b) => a - b)).toEqual(ITEMS)
     })
 
-    test('is deterministic with same seed', async () => {
-      const result1 = await collect(reorder(fromArray(ITEMS), 5, createSeededRandom(123)))
-      const result2 = await collect(reorder(fromArray(ITEMS), 5, createSeededRandom(123)))
+    test("is deterministic with same seed", async () => {
+      const result1 = await collect(
+        reorder(fromArray(ITEMS), 5, createSeededRandom(123)),
+      )
+      const result2 = await collect(
+        reorder(fromArray(ITEMS), 5, createSeededRandom(123)),
+      )
       expect(result1).toEqual(result2)
     })
   })
 
-  describe('duplicate', () => {
-    test('duplicates some items', async () => {
+  describe("duplicate", () => {
+    test("duplicates some items", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(duplicate(fromArray(ITEMS), 0.5, rng))
 
@@ -110,19 +118,19 @@ describe('chaos transformers', () => {
       }
     })
 
-    test('rate 0 duplicates nothing', async () => {
+    test("rate 0 duplicates nothing", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(duplicate(fromArray(ITEMS), 0, rng))
       expect(result).toEqual(ITEMS)
     })
 
-    test('rate 1 duplicates everything', async () => {
+    test("rate 1 duplicates everything", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(duplicate(fromArray(ITEMS), 1, rng))
       expect(result.length).toBe(ITEMS.length * 2)
     })
 
-    test('preserves order (dupes adjacent)', async () => {
+    test("preserves order (dupes adjacent)", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(duplicate(fromArray([1, 2, 3]), 1, rng))
       // Each item appears twice, in order
@@ -130,49 +138,49 @@ describe('chaos transformers', () => {
     })
   })
 
-  describe('burst', () => {
-    test('buffers then flushes', async () => {
+  describe("burst", () => {
+    test("buffers then flushes", async () => {
       const result = await collect(burst(fromArray(ITEMS), 5))
       // All items preserved, same order
       expect(result).toEqual(ITEMS)
     })
 
-    test('flushes remainder', async () => {
+    test("flushes remainder", async () => {
       // 10 items with burst size 3: 3+3+3+1
       const result = await collect(burst(fromArray(ITEMS), 3))
       expect(result).toEqual(ITEMS)
     })
 
-    test('burst size larger than input', async () => {
+    test("burst size larger than input", async () => {
       const result = await collect(burst(fromArray(ITEMS), 100))
       expect(result).toEqual(ITEMS)
     })
 
-    test('burst size 1 is identity', async () => {
+    test("burst size 1 is identity", async () => {
       const result = await collect(burst(fromArray(ITEMS), 1))
       expect(result).toEqual(ITEMS)
     })
   })
 
-  describe('initGap', () => {
-    test('skips first N items', async () => {
+  describe("initGap", () => {
+    test("skips first N items", async () => {
       const result = await collect(initGap(fromArray(ITEMS), 3))
       expect(result).toEqual([4, 5, 6, 7, 8, 9, 10])
     })
 
-    test('skip 0 is identity', async () => {
+    test("skip 0 is identity", async () => {
       const result = await collect(initGap(fromArray(ITEMS), 0))
       expect(result).toEqual(ITEMS)
     })
 
-    test('skip more than length yields empty', async () => {
+    test("skip more than length yields empty", async () => {
       const result = await collect(initGap(fromArray(ITEMS), 100))
       expect(result).toEqual([])
     })
   })
 
-  describe('delay', () => {
-    test('yields all items with delays', async () => {
+  describe("delay", () => {
+    test("yields all items with delays", async () => {
       const rng = createSeededRandom(42)
       const start = Date.now()
       const result = await collect(delay(fromArray([1, 2, 3]), 0, 1, rng))
@@ -182,14 +190,18 @@ describe('chaos transformers', () => {
     })
   })
 
-  describe('chaos combinator', () => {
-    test('composes multiple transformers', async () => {
+  describe("chaos combinator", () => {
+    test("composes multiple transformers", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(
-        chaos(fromArray(ITEMS), [
-          { type: 'drop', params: { rate: 0.2 } },
-          { type: 'duplicate', params: { rate: 0.1 } },
-        ], rng),
+        chaos(
+          fromArray(ITEMS),
+          [
+            { type: "drop", params: { rate: 0.2 } },
+            { type: "duplicate", params: { rate: 0.1 } },
+          ],
+          rng,
+        ),
       )
 
       // Some items dropped, some duplicated — count varies
@@ -199,27 +211,27 @@ describe('chaos transformers', () => {
       }
     })
 
-    test('empty configs is identity', async () => {
+    test("empty configs is identity", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(chaos(fromArray(ITEMS), [], rng))
       expect(result).toEqual(ITEMS)
     })
 
-    test('unknown type is ignored', async () => {
+    test("unknown type is ignored", async () => {
       const rng = createSeededRandom(42)
       const result = await collect(
-        chaos(fromArray(ITEMS), [{ type: 'nonexistent', params: {} }], rng),
+        chaos(fromArray(ITEMS), [{ type: "nonexistent", params: {} }], rng),
       )
       expect(result).toEqual(ITEMS)
     })
 
-    test('custom registry extends built-in', async () => {
+    test("custom registry extends built-in", async () => {
       const rng = createSeededRandom(42)
 
       // Custom transformer that doubles every item
       const customRegistry: ChaosRegistry<number> = {
-        ...builtinChaosRegistry as ChaosRegistry<number>,
-        double: async function*(source) {
+        ...(builtinChaosRegistry as ChaosRegistry<number>),
+        double: async function* (source) {
           for await (const item of source) {
             yield item * 2
           }
@@ -227,26 +239,35 @@ describe('chaos transformers', () => {
       }
 
       const result = await collect(
-        chaos(fromArray([1, 2, 3]), [{ type: 'double', params: {} }], rng, customRegistry),
+        chaos(
+          fromArray([1, 2, 3]),
+          [{ type: "double", params: {} }],
+          rng,
+          customRegistry,
+        ),
       )
       expect(result).toEqual([2, 4, 6])
     })
 
-    test('is deterministic with same seed', async () => {
+    test("is deterministic with same seed", async () => {
       const configs = [
-        { type: 'drop', params: { rate: 0.3 } },
-        { type: 'reorder', params: { windowSize: 3 } },
-        { type: 'duplicate', params: { rate: 0.2 } },
+        { type: "drop", params: { rate: 0.3 } },
+        { type: "reorder", params: { windowSize: 3 } },
+        { type: "duplicate", params: { rate: 0.2 } },
       ]
 
-      const result1 = await collect(chaos(fromArray(ITEMS), configs, createSeededRandom(42)))
-      const result2 = await collect(chaos(fromArray(ITEMS), configs, createSeededRandom(42)))
+      const result1 = await collect(
+        chaos(fromArray(ITEMS), configs, createSeededRandom(42)),
+      )
+      const result2 = await collect(
+        chaos(fromArray(ITEMS), configs, createSeededRandom(42)),
+      )
       expect(result1).toEqual(result2)
     })
   })
 
-  describe('composition', () => {
-    test('transformers compose via piping', async () => {
+  describe("composition", () => {
+    test("transformers compose via piping", async () => {
       const rng = createSeededRandom(42)
 
       // Manual composition (same as chaos combinator)
@@ -259,15 +280,19 @@ describe('chaos transformers', () => {
       expect(result.length).toBeLessThanOrEqual(ITEMS.length)
     })
 
-    test('works with non-numeric types', async () => {
+    test("works with non-numeric types", async () => {
       const rng = createSeededRandom(42)
-      const strings = ['alpha', 'beta', 'gamma', 'delta', 'epsilon']
+      const strings = ["alpha", "beta", "gamma", "delta", "epsilon"]
 
       const result = await collect(
-        chaos(fromArray(strings), [
-          { type: 'drop', params: { rate: 0.2 } },
-          { type: 'reorder', params: { windowSize: 3 } },
-        ], rng),
+        chaos(
+          fromArray(strings),
+          [
+            { type: "drop", params: { rate: 0.2 } },
+            { type: "reorder", params: { windowSize: 3 } },
+          ],
+          rng,
+        ),
       )
 
       expect(result.length).toBeGreaterThan(0)
@@ -276,17 +301,15 @@ describe('chaos transformers', () => {
       }
     })
 
-    test('works with object types', async () => {
+    test("works with object types", async () => {
       const rng = createSeededRandom(42)
       const events = [
-        { type: 'click', x: 10, y: 20 },
-        { type: 'move', x: 30, y: 40 },
-        { type: 'click', x: 50, y: 60 },
+        { type: "click", x: 10, y: 20 },
+        { type: "move", x: 30, y: 40 },
+        { type: "click", x: 50, y: 60 },
       ]
 
-      const result = await collect(
-        duplicate(fromArray(events), 0.5, rng),
-      )
+      const result = await collect(duplicate(fromArray(events), 0.5, rng))
 
       expect(result.length).toBeGreaterThanOrEqual(events.length)
       for (const item of result) {

@@ -1,8 +1,8 @@
-import { describe, test, expect } from 'vitest'
-import { createSeededRandom, parseSeed } from '../src/random.js'
+import { describe, test, expect } from "vitest"
+import { createSeededRandom, parseSeed } from "../src/random.js"
 
-describe('createSeededRandom', () => {
-  test('same seed produces same sequence', () => {
+describe("createSeededRandom", () => {
+  test("same seed produces same sequence", () => {
     const r1 = createSeededRandom(12345)
     const r2 = createSeededRandom(12345)
 
@@ -11,7 +11,7 @@ describe('createSeededRandom', () => {
     expect(r1.int(0, 100)).toBe(r2.int(0, 100))
   })
 
-  test('different seeds produce different sequences', () => {
+  test("different seeds produce different sequences", () => {
     const r1 = createSeededRandom(12345)
     const r2 = createSeededRandom(54321)
 
@@ -22,7 +22,7 @@ describe('createSeededRandom', () => {
     expect(seq1).not.toEqual(seq2)
   })
 
-  test('int() returns values in range', () => {
+  test("int() returns values in range", () => {
     const random = createSeededRandom(42)
 
     for (let i = 0; i < 100; i++) {
@@ -32,7 +32,7 @@ describe('createSeededRandom', () => {
     }
   })
 
-  test('float() returns values in [0, 1)', () => {
+  test("float() returns values in [0, 1)", () => {
     const random = createSeededRandom(42)
 
     for (let i = 0; i < 100; i++) {
@@ -42,9 +42,9 @@ describe('createSeededRandom', () => {
     }
   })
 
-  test('pick() selects from array', () => {
+  test("pick() selects from array", () => {
     const random = createSeededRandom(42)
-    const items = ['a', 'b', 'c', 'd']
+    const items = ["a", "b", "c", "d"]
 
     for (let i = 0; i < 100; i++) {
       const picked = random.pick(items)
@@ -52,14 +52,14 @@ describe('createSeededRandom', () => {
     }
   })
 
-  test('pick() throws on empty array', () => {
+  test("pick() throws on empty array", () => {
     const random = createSeededRandom(42)
-    expect(() => random.pick([])).toThrow('Cannot pick from empty array')
+    expect(() => random.pick([])).toThrow("Cannot pick from empty array")
   })
 
-  test('weightedPick() respects weights', () => {
+  test("weightedPick() respects weights", () => {
     const random = createSeededRandom(42)
-    const items = ['rare', 'common'] as const
+    const items = ["rare", "common"] as const
     const weights = { rare: 1, common: 100 }
 
     const counts = { rare: 0, common: 0 }
@@ -71,7 +71,7 @@ describe('createSeededRandom', () => {
     expect(counts.common).toBeGreaterThan(counts.rare * 5)
   })
 
-  test('shuffle() returns new array with same elements', () => {
+  test("shuffle() returns new array with same elements", () => {
     const random = createSeededRandom(42)
     const original = [1, 2, 3, 4, 5]
     const shuffled = random.shuffle(original)
@@ -80,7 +80,7 @@ describe('createSeededRandom', () => {
     expect(shuffled.sort()).toEqual(original.sort()) // Same elements
   })
 
-  test('shuffle() is deterministic with same seed', () => {
+  test("shuffle() is deterministic with same seed", () => {
     const items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     const r1 = createSeededRandom(12345)
@@ -89,7 +89,7 @@ describe('createSeededRandom', () => {
     expect(r1.shuffle(items)).toEqual(r2.shuffle(items))
   })
 
-  test('array() generates arrays of correct length', () => {
+  test("array() generates arrays of correct length", () => {
     const random = createSeededRandom(42)
     const arr = random.array(5, () => random.int(0, 10))
 
@@ -100,7 +100,7 @@ describe('createSeededRandom', () => {
     })
   })
 
-  test('bool() respects probability', () => {
+  test("bool() respects probability", () => {
     const random = createSeededRandom(42)
 
     // Always true
@@ -118,7 +118,7 @@ describe('createSeededRandom', () => {
     expect(falseCount).toBe(100)
   })
 
-  test('fork() creates independent stream', () => {
+  test("fork() creates independent stream", () => {
     const random = createSeededRandom(42)
 
     // Generate some values from original
@@ -149,18 +149,18 @@ describe('createSeededRandom', () => {
   })
 })
 
-describe('parseSeed', () => {
-  test('returns random seed when source is random', () => {
-    const seed = parseSeed('random')
-    expect(typeof seed).toBe('number')
+describe("parseSeed", () => {
+  test("returns random seed when source is random", () => {
+    const seed = parseSeed("random")
+    expect(typeof seed).toBe("number")
     expect(seed).toBeGreaterThan(0)
   })
 
-  test('reads FUZZ_SEED from env when source is env', () => {
+  test("reads FUZZ_SEED from env when source is env", () => {
     const originalEnv = process.env.FUZZ_SEED
     try {
-      process.env.FUZZ_SEED = '99999'
-      expect(parseSeed('env')).toBe(99999)
+      process.env.FUZZ_SEED = "99999"
+      expect(parseSeed("env")).toBe(99999)
     } finally {
       if (originalEnv === undefined) {
         delete process.env.FUZZ_SEED
@@ -170,12 +170,12 @@ describe('parseSeed', () => {
     }
   })
 
-  test('returns random seed when FUZZ_SEED is not set', () => {
+  test("returns random seed when FUZZ_SEED is not set", () => {
     const originalEnv = process.env.FUZZ_SEED
     try {
       delete process.env.FUZZ_SEED
-      const seed = parseSeed('env')
-      expect(typeof seed).toBe('number')
+      const seed = parseSeed("env")
+      expect(typeof seed).toBe("number")
       expect(seed).toBeGreaterThan(0)
     } finally {
       if (originalEnv !== undefined) {

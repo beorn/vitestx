@@ -7,9 +7,9 @@
  * - real:disk: Real implementation with temporary disk storage
  */
 
-export type TestSys = 'fake' | 'real:mem' | 'real:disk'
+export type TestSys = "fake" | "real:mem" | "real:disk"
 
-const VALID_VALUES: TestSys[] = ['fake', 'real:mem', 'real:disk']
+const VALID_VALUES: TestSys[] = ["fake", "real:mem", "real:disk"]
 
 /**
  * Get the current TEST_SYS value
@@ -34,16 +34,16 @@ export function getTestSys(): TestSys {
   const value = process.env.TEST_SYS
 
   if (!value) {
-    return 'fake'
+    return "fake"
   }
 
   if (!VALID_VALUES.includes(value as TestSys)) {
     console.warn(
       `Invalid TEST_SYS value: "${value}". ` +
-      `Valid values: ${VALID_VALUES.join(', ')}. ` +
-      `Defaulting to "fake".`
+        `Valid values: ${VALID_VALUES.join(", ")}. ` +
+        `Defaulting to "fake".`,
     )
-    return 'fake'
+    return "fake"
   }
 
   return value as TestSys
@@ -54,12 +54,12 @@ export function getTestSys(): TestSys {
  */
 export function isRealSys(): boolean {
   const sys = getTestSys()
-  return sys === 'real:mem' || sys === 'real:disk'
+  return sys === "real:mem" || sys === "real:disk"
 }
 
 /**
  * Check if running with disk storage
  */
 export function isDiskSys(): boolean {
-  return getTestSys() === 'real:disk'
+  return getTestSys() === "real:disk"
 }

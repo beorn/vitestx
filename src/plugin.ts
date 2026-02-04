@@ -19,13 +19,13 @@
  * ```
  */
 
-import type { Plugin } from 'vite'
+import type { Plugin } from "vite"
 
 export interface VitestxFuzzOptions {
   /** Number of actions per test run (default: 100) */
   iterations?: number
   /** Seed source: 'env' reads FUZZ_SEED, 'random' generates new (default: 'env') */
-  seed?: 'env' | 'random'
+  seed?: "env" | "random"
   /** Stop after first failure (default: true) */
   failFast?: boolean
   /** Shrinking settings */
@@ -47,7 +47,7 @@ export interface VitestxAiOptions {
   /** Directory to save discovered tests */
   saveDir?: string
   /** Use Claude Code provider */
-  provider?: 'openai' | 'anthropic' | 'claude-code'
+  provider?: "openai" | "anthropic" | "claude-code"
 }
 
 export interface VitestxDocOptions {
@@ -68,14 +68,10 @@ export interface VitestxOptions {
  * Creates the vitestx plugin for Vitest
  */
 export function vitestx(options: VitestxOptions = {}): Plugin {
-  const {
-    fuzz = {},
-    ai = {},
-    doc = {},
-  } = options
+  const { fuzz = {}, ai = {}, doc = {} } = options
 
   return {
-    name: 'vitestx',
+    name: "vitestx",
 
     config() {
       // Configure vitest for custom modes

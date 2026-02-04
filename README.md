@@ -3,10 +3,10 @@
 Fuzz testing for Vitest. Async generators + auto-shrinking + chaos streams.
 
 ```typescript
-import { test, gen, take } from 'vitestx'
+import { test, gen, take } from "vitestx"
 
-test.fuzz('cursor stays in bounds', async () => {
-  for await (const key of take(gen(['j', 'k', 'h', 'l']), 100)) {
+test.fuzz("cursor stays in bounds", async () => {
+  for await (const key of take(gen(["j", "k", "h", "l"]), 100)) {
     await handle.press(key)
     expect(getCursor()).toBeGreaterThanOrEqual(0)
   }
@@ -18,13 +18,14 @@ test.fuzz('cursor stays in bounds', async () => {
 
 Three composable primitives:
 
-| Primitive | What it does |
-|-----------|-------------|
-| `gen(picker)` | Infinite async generator of random values |
+| Primitive      | What it does                                               |
+| -------------- | ---------------------------------------------------------- |
+| `gen(picker)`  | Infinite async generator of random values                  |
 | `take(gen, n)` | Limits iteration, auto-tracks values via AsyncLocalStorage |
-| `test.fuzz()` | Wraps vitest `test()` with shrinking and regression |
+| `test.fuzz()`  | Wraps vitest `test()` with shrinking and regression        |
 
 When a fuzz test fails:
+
 1. **Shrink** — delta-debugging finds the minimal failing sequence
 2. **Save** — failing case stored in `__fuzz_cases__/` as regression
 3. **Replay** — saved cases re-run automatically on `vitest run`
@@ -33,16 +34,21 @@ When a fuzz test fails:
 
 ```typescript
 // Uniform random from array
-gen(['j', 'k', 'h', 'l'])
+gen(["j", "k", "h", "l"])
 
 // Weighted random — 40% j, 40% k, 10% Enter, 10% Escape
-gen([[40, 'j'], [40, 'k'], [10, 'Enter'], [10, 'Escape']])
+gen([
+  [40, "j"],
+  [40, "k"],
+  [10, "Enter"],
+  [10, "Escape"],
+])
 
 // Custom picker — stateful, async, whatever you need
 gen((ctx) => {
   const state = getState()
-  if (state.cursor === 0) return ctx.random.pick(['j', 'l'])
-  return ctx.random.pick(['j', 'k', 'h', 'l'])
+  if (state.cursor === 0) return ctx.random.pick(["j", "l"])
+  return ctx.random.pick(["j", "k", "h", "l"])
 })
 
 // Async picker — call an LLM, read a file, whatever
@@ -74,21 +80,21 @@ const chaotic = chaos(source, [
 
 ### Built-in Transformers
 
-| Transformer | What it simulates |
-|------------|-------------------|
-| `drop(source, rate, rng)` | Message loss, queue overflow |
-| `reorder(source, windowSize, rng)` | Out-of-order delivery |
-| `duplicate(source, rate, rng)` | At-least-once / duplicate delivery |
-| `burst(source, burstSize)` | Bursty delivery, batched packets |
-| `initGap(source, count)` | Missed events during init, late subscriber |
-| `delay(source, minMs, maxMs, rng)` | Slow I/O, network latency |
+| Transformer                        | What it simulates                          |
+| ---------------------------------- | ------------------------------------------ |
+| `drop(source, rate, rng)`          | Message loss, queue overflow               |
+| `reorder(source, windowSize, rng)` | Out-of-order delivery                      |
+| `duplicate(source, rate, rng)`     | At-least-once / duplicate delivery         |
+| `burst(source, burstSize)`         | Bursty delivery, batched packets           |
+| `initGap(source, count)`           | Missed events during init, late subscriber |
+| `delay(source, minMs, maxMs, rng)` | Slow I/O, network latency                  |
 
 ### Custom Registries
 
 Extend the built-in registry with domain-specific transformers:
 
 ```typescript
-import { chaos, builtinChaosRegistry, type ChaosRegistry } from 'vitestx/chaos'
+import { chaos, builtinChaosRegistry, type ChaosRegistry } from "vitestx/chaos"
 
 const fsRegistry: ChaosRegistry<FsEvent> = {
   ...builtinChaosRegistry,
@@ -104,22 +110,22 @@ const chaotic = chaos(source, configs, rng, fsRegistry)
 Deterministic random for reproducible tests:
 
 ```typescript
-import { createSeededRandom } from 'vitestx'
+import { createSeededRandom } from "vitestx"
 
 const rng = createSeededRandom(42)
-rng.int(0, 100)          // deterministic integer
-rng.float()              // deterministic [0, 1)
-rng.pick(['a', 'b'])     // deterministic pick
-rng.bool(0.3)            // 30% chance of true
-rng.shuffle([1, 2, 3])   // deterministic shuffle
-rng.fork()               // independent child stream
+rng.int(0, 100) // deterministic integer
+rng.float() // deterministic [0, 1)
+rng.pick(["a", "b"]) // deterministic pick
+rng.bool(0.3) // 30% chance of true
+rng.shuffle([1, 2, 3]) // deterministic shuffle
+rng.fork() // independent child stream
 ```
 
 ## Imports
 
 ```typescript
-import { test, gen, take, createSeededRandom } from 'vitestx'
-import { chaos, drop, reorder, builtinChaosRegistry } from 'vitestx/chaos'
+import { test, gen, take, createSeededRandom } from "vitestx"
+import { chaos, drop, reorder, builtinChaosRegistry } from "vitestx/chaos"
 ```
 
 `vitestx` re-exports everything from `vitestx/fuzz`. Use the subpath if you prefer explicit imports.

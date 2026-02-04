@@ -16,7 +16,7 @@
  * ```
  */
 
-import type { SeededRandom } from '../random.js'
+import type { SeededRandom } from "../random.js"
 
 // ---------------------------------------------------------------------------
 // Individual transformers
@@ -142,7 +142,11 @@ export interface ChaosConfig {
 /** Registry of transformer factories keyed by config type */
 export type ChaosRegistry<T> = Record<
   string,
-  (source: AsyncIterable<T>, params: Record<string, unknown>, rng: SeededRandom) => AsyncIterable<T>
+  (
+    source: AsyncIterable<T>,
+    params: Record<string, unknown>,
+    rng: SeededRandom,
+  ) => AsyncIterable<T>
 >
 
 /** Built-in transformer registry (works for any T) */
@@ -152,7 +156,8 @@ const BUILTIN_REGISTRY: ChaosRegistry<unknown> = {
   duplicate: (s, p, rng) => duplicate(s, (p.rate as number) ?? 0.3, rng),
   burst: (s, p) => burst(s, (p.burstSize as number) ?? 10),
   init_gap: (s, p) => initGap(s, (p.count as number) ?? 5),
-  delay: (s, p, rng) => delay(s, (p.minMs as number) ?? 1, (p.maxMs as number) ?? 5, rng),
+  delay: (s, p, rng) =>
+    delay(s, (p.minMs as number) ?? 1, (p.maxMs as number) ?? 5, rng),
 }
 
 /**
@@ -183,7 +188,7 @@ export function chaos<T>(
   rng: SeededRandom,
   registry?: ChaosRegistry<T>,
 ): AsyncIterable<T> {
-  const reg = registry ?? BUILTIN_REGISTRY as ChaosRegistry<T>
+  const reg = registry ?? (BUILTIN_REGISTRY as ChaosRegistry<T>)
   let pipeline = source
   for (const config of configs) {
     const factory = reg[config.type]
