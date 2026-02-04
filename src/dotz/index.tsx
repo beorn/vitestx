@@ -3,16 +3,11 @@
  *
  * Renders test results using inkx React components.
  * All output goes through inkx - layout, colors, everything.
+ * Zero manual ANSI. Every color, alignment, spacing is a component prop or flex layout.
  */
 
 import * as fs from "node:fs"
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react"
+import React, { useMemo, useSyncExternalStore, type ReactNode } from "react"
 import type {
   Reporter,
   TestCase,
@@ -25,7 +20,6 @@ import {
   Box,
   Text,
   Console,
-  useTerm,
   useContentRect,
   patchConsole,
   type Instance,
@@ -41,31 +35,6 @@ import {
   type TestStoreState,
 } from "./store.js"
 
-// =============================================================================
-// Style Context (for testing DI)
-// =============================================================================
-
-/** Style function type - returns a Term (which IS the style chain) */
-export type StyleFn = () => Term
-
-/**
- * StyleContext allows injecting a style function for testing.
- * When null, components fall back to useTerm().
- */
-const StyleContext = createContext<StyleFn | null>(null)
-
-/**
- * Hook to get the style chain - uses StyleContext if provided, otherwise useTerm().
- * Note: Term IS the style chain (no  method needed).
- */
-function useStyle(): Term {
-  const styleFromContext = useContext(StyleContext)
-  if (styleFromContext) {
-    return styleFromContext()
-  }
-  return useTerm()
-}
-
 const debug = Debug("vitestx:dotz")
 
 // =============================================================================
@@ -77,12 +46,17 @@ export const DURATION_MULTIPLIER = 10 // Symbol range: 0x to 10x threshold
 export const UNMOUNT_DELAY_MS = 50
 export const DEFAULT_SYMBOLS = ["·", "•", "●"]
 
-/** Status dot definitions: char, color method, legend label */
+/** Status dot definitions: char, Text style props, legend label */
 export const STATUS_DOTS = {
-  failed: { char: "x", color: "red", label: "fail" },
-  skipped: { char: "-", color: "gray.dim", label: "skip" },
-  pending: { char: "*", color: "yellow", label: "pending" },
-  noisy: { char: "!", color: "magenta", label: "noisy" },
+  failed: { char: "x", color: "red" as const, label: "fail" },
+  skipped: {
+    char: "-",
+    color: "gray" as const,
+    dim: true as const,
+    label: "skip",
+  },
+  pending: { char: "*", color: "yellow" as const, label: "pending" },
+  noisy: { char: "!", color: "magenta" as const, label: "noisy" },
 } as const
 
 export type StatusKey = keyof typeof STATUS_DOTS
@@ -99,18 +73,6 @@ export type Options = Required<ReporterOptions>
 // =============================================================================
 // Core Algorithm: Duration → Symbol (exported for testing)
 // =============================================================================
-
-/** Apply a dot-path color (e.g. "gray.dim") to text */
-export function applyColor(
-  term: ReturnType<typeof useTerm>,
-  color: string,
-  text: string,
-) {
-  const parts = color.split(".")
-  let result = term as unknown as Record<string, unknown>
-  for (const p of parts) result = result[p] as Record<string, unknown>
-  return (result as unknown as (s: string) => string)(text)
-}
 
 /**
  * Maps test duration to a symbol index and brightness.
@@ -176,14 +138,11 @@ type DotProps =
   | { status: StatusKey }
 
 export function StatusDot({ status }: { status: StatusKey }) {
-  const s = useStyle()
-  const { char, color } = STATUS_DOTS[status]
-  return <Text>{applyColor(s, color, char)}</Text>
+  const { char, label: _, ...style } = STATUS_DOTS[status]
+  return <Text {...style}>{char}</Text>
 }
 
 export function Dot(props: DotProps) {
-  const s = useStyle()
-
   // Static status dots (legend use)
   if ("status" in props && props.status !== "passed") {
     return <StatusDot status={props.status} />
@@ -214,7 +173,11 @@ export function Dot(props: DotProps) {
     options.slowThreshold,
     options.symbols,
   )
-  return <Text>{bright ? s.green(char) : s.green.dim(char)}</Text>
+  return (
+    <Text color="green" dim={!bright}>
+      {char}
+    </Text>
+  )
 }
 
 export function DurationSymbol({
@@ -224,13 +187,16 @@ export function DurationSymbol({
   duration: number
   options: Options
 }) {
-  const s = useStyle()
   const { char, bright } = durationToSymbol(
     duration,
     options.slowThreshold,
     options.symbols,
   )
-  return <Text>{bright ? s.green(char) : s.green.dim(char)}</Text>
+  return (
+    <Text color="green" dim={!bright}>
+      {char}
+    </Text>
+  )
 }
 
 // --- Layout components ---
@@ -242,20 +208,18 @@ function LegendItem({
   children: ReactNode
   label: string
 }) {
-  const s = useStyle()
   return (
     <Box flexDirection="row" gap={1}>
       {children}
-      <Text>{s.dim(label)}</Text>
+      <Text dim>{label}</Text>
     </Box>
   )
 }
 
 export function DotsLegend({ options }: { options: Options }) {
-  const s = useStyle()
   return (
     <Box flexDirection="row" gap={2} marginBottom={1}>
-      <Text>{s.dim("Legend:")}</Text>
+      <Text dim>Legend:</Text>
       <LegendItem label="fast">
         <Dot status="passed" duration={0} options={options} />
       </LegendItem>
@@ -300,8 +264,6 @@ function DotsSectionInner({
   options,
   width: cols,
 }: Omit<DotsSectionProps, "width"> & { width: number }) {
-  const s = useStyle()
-
   const maxLabelWidth = useMemo(
     () =>
       Math.min(
@@ -338,7 +300,9 @@ function DotsSectionInner({
         if (fileBreakouts.has(category)) {
           return (
             <Box key={category} flexDirection="column">
-              <Text>{s.cyan.bold(category)}</Text>
+              <Text bold color="cyan">
+                {category}
+              </Text>
               {catStats.fileOrder.map((file) => {
                 const fileStats = catStats.files.get(file)
                 if (!fileStats) return null
@@ -348,10 +312,9 @@ function DotsSectionInner({
                 )
                 return (
                   <Box key={file} flexDirection="row">
-                    <Text>
-                      {"  "}
-                      {s.dim(name.padEnd(maxLabelWidth - 2))}
-                    </Text>
+                    <Box marginLeft={2}>
+                      <Text dim>{name.padEnd(maxLabelWidth - 2)}</Text>
+                    </Box>
                     <Box flexDirection="row" flexWrap="wrap" width={dotsWidth}>
                       {fileStats.testIds.map((id) => (
                         <Dot
@@ -371,7 +334,9 @@ function DotsSectionInner({
 
         return (
           <Box key={category} flexDirection="row">
-            <Text>{s.cyan(category.padEnd(maxLabelWidth))}</Text>
+            <Box width={maxLabelWidth}>
+              <Text color="cyan">{category}</Text>
+            </Box>
             <Box flexDirection="row" flexWrap="wrap" width={dotsWidth}>
               {catStats.testIds.map((id) => (
                 <Dot key={id} testId={id} store={state} options={options} />
@@ -384,35 +349,59 @@ function DotsSectionInner({
   )
 }
 
+function Sep() {
+  return <Text dim>{" | "}</Text>
+}
+
 export function Summary({ state }: { state: TestStoreState }) {
-  const s = useStyle()
   const { passed, failed, skipped } = state
   const total = passed + failed + skipped
   const elapsed = Date.now() - state.startTime
   const sum = [...state.testDurations.values()].reduce((a, b) => a + b, 0)
 
-  const counts = [
-    failed > 0 && s.bold.red(`${failed} failed`),
-    passed > 0 && s.bold.green(`${passed} passed`),
-    skipped > 0 && s.yellow(`${skipped} skipped`),
-  ].filter(Boolean)
+  const counts: ReactNode[] = []
+  if (failed > 0)
+    counts.push(
+      <Text key="f" bold color="red">
+        {failed} failed
+      </Text>,
+    )
+  if (passed > 0)
+    counts.push(
+      <Text key="p" bold color="green">
+        {passed} passed
+      </Text>,
+    )
+  if (skipped > 0)
+    counts.push(
+      <Text key="s" color="yellow">
+        {skipped} skipped
+      </Text>,
+    )
 
   return (
-    <Box id="summary" flexDirection="column" marginTop={1}>
-      <Text>
-        {s.dim("Tests")}{" "}
-        {counts.length ? counts.join(s.dim(" | ")) : s.dim("0")}
-        {s.gray(` (${total})`)}
-        {"  "}
-        {s.dim("Time")} {fmtDuration(elapsed)}
-        {s.gray(` (sum ${fmtDuration(sum)})`)}
-      </Text>
+    <Box id="summary" flexDirection="row" marginTop={1}>
+      <Text dim>Tests </Text>
+      {counts.length > 0 ? (
+        counts.map((node, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <Sep />}
+            {node}
+          </React.Fragment>
+        ))
+      ) : (
+        <Text dim>0</Text>
+      )}
+      <Text color="gray">{` (${total})`}</Text>
+      <Text>{"  "}</Text>
+      <Text dim>Time </Text>
+      <Text>{fmtDuration(elapsed)}</Text>
+      <Text color="gray">{` (sum ${fmtDuration(sum)})`}</Text>
     </Box>
   )
 }
 
 export function PackageTable({ state }: { state: TestStoreState }) {
-  const s = useStyle()
   const w = useMemo(
     () => Math.max(...state.categoryOrder.map((c) => c.length), 12),
     [state.categoryOrder],
@@ -420,18 +409,62 @@ export function PackageTable({ state }: { state: TestStoreState }) {
 
   if (state.categoryOrder.length <= 1) return null
 
-  const header = `${"PACKAGE".padEnd(w)}  ${"TESTS".padStart(5)}  ${"TIME".padStart(8)}  ${"SLOW".padStart(6)}`
   return (
     <Box id="package-table" flexDirection="column" marginTop={1}>
-      <Text>{s.bold.white(header)}</Text>
+      <Box flexDirection="row">
+        <Box width={w}>
+          <Text bold color="white">
+            PACKAGE
+          </Text>
+        </Box>
+        <Box width={7}>
+          <Text bold color="white">
+            {" TESTS".padStart(7)}
+          </Text>
+        </Box>
+        <Box width={10}>
+          <Text bold color="white">
+            {"TIME".padStart(10)}
+          </Text>
+        </Box>
+        <Box width={8}>
+          <Text bold color="white">
+            {"SLOW".padStart(8)}
+          </Text>
+        </Box>
+      </Box>
       {state.categoryOrder.map((cat) => {
         const st = state.categoryStats.get(cat)
         if (!st) return null
         const n = st.passed + st.failed + st.skipped
         const slow =
           st.slowCount > 0 ? String(st.slowCount).padStart(6) : "     -"
-        const row = `${cat.padEnd(w)}  ${String(n).padStart(5)}  ${fmtDuration(st.duration).padStart(8)}  ${slow}`
-        return <Text key={cat}>{st.failed > 0 ? s.red(row) : s.dim(row)}</Text>
+        const rowColor = st.failed > 0 ? ("red" as const) : undefined
+        const rowDim = st.failed <= 0
+        return (
+          <Box key={cat} flexDirection="row">
+            <Box width={w}>
+              <Text color={rowColor} dim={rowDim}>
+                {cat}
+              </Text>
+            </Box>
+            <Box width={7}>
+              <Text color={rowColor} dim={rowDim}>
+                {String(n).padStart(7)}
+              </Text>
+            </Box>
+            <Box width={10}>
+              <Text color={rowColor} dim={rowDim}>
+                {fmtDuration(st.duration).padStart(10)}
+              </Text>
+            </Box>
+            <Box width={8}>
+              <Text color={rowColor} dim={rowDim}>
+                {slow.padStart(8)}
+              </Text>
+            </Box>
+          </Box>
+        )
       })}
     </Box>
   )
@@ -444,36 +477,39 @@ export function SlowTests({
   state: TestStoreState
   options: Options
 }) {
-  const s = useStyle()
   if (!options.showSlow || state.topSlowest.length === 0) return null
 
   const { symbols, slowThreshold } = options
   const rangePerSymbol = DURATION_MULTIPLIER / symbols.length
 
-  // Legend: show threshold for each symbol level
-  const legend = symbols.slice(1).map((sym, i) => {
-    const minMs = Math.round(slowThreshold * (i + 1) * rangePerSymbol)
-    return `${s.green.dim(sym)} ${s.dim(`≥${fmtMs(minMs)}`)}`
-  })
-  legend.push(
-    `${s.green(symbols.at(-1) ?? "●")} ${s.dim(`≥${fmtMs(slowThreshold * DURATION_MULTIPLIER)}`)}`,
-  )
-
   return (
     <Box id="slow-tests" flexDirection="column" marginTop={1}>
-      <Text>
-        {s.bold("SLOW TESTS")} {legend.join("  ")}
-      </Text>
+      <Box flexDirection="row" gap={2}>
+        <Text bold>SLOW TESTS</Text>
+        {symbols.slice(1).map((sym, i) => {
+          const minMs = Math.round(slowThreshold * (i + 1) * rangePerSymbol)
+          return (
+            <Box key={i} flexDirection="row" gap={1}>
+              <Text color="green" dim>
+                {sym}
+              </Text>
+              <Text dim>≥{fmtMs(minMs)}</Text>
+            </Box>
+          )
+        })}
+        <Box flexDirection="row" gap={1}>
+          <Text color="green">{symbols.at(-1) ?? "●"}</Text>
+          <Text dim>≥{fmtMs(slowThreshold * DURATION_MULTIPLIER)}</Text>
+        </Box>
+      </Box>
       {state.topSlowest.slice(0, MAX_SLOW_TESTS).map((test, i) => {
         const loc = test.line ? `${test.file}:${test.line}` : test.file
         return (
-          <Box key={i} flexDirection="row">
+          <Box key={i} flexDirection="row" gap={1}>
             <DurationSymbol duration={test.duration} options={options} />
-            <Text>
-              {" "}
-              {s.green(fmtDuration(test.duration).padStart(6))}{" "}
-              {s.gray(loc + " >")} {test.name}
-            </Text>
+            <Text color="green">{fmtDuration(test.duration).padStart(6)}</Text>
+            <Text color="gray">{loc} &gt;</Text>
+            <Text>{test.name}</Text>
           </Box>
         )
       })}
@@ -482,29 +518,31 @@ export function SlowTests({
 }
 
 export function Failures({ state }: { state: TestStoreState }) {
-  const s = useStyle()
   if (state.testErrors.size === 0) return null
 
   return (
     <Box id="failures" flexDirection="column" marginTop={1}>
-      <Text>{s.bold.red("FAILURES")}</Text>
+      <Text bold color="red">
+        FAILURES
+      </Text>
       {[...state.testErrors.values()].map((err, i) => (
         <Box key={i} flexDirection="column" marginTop={1}>
-          <Text>
-            {s.red("✗")} {s.bold(err.name)}
-          </Text>
-          <Text>
-            {"  "}
-            {s.dim(err.file)}
-          </Text>
+          <Box flexDirection="row" gap={1}>
+            <Text color="red">✗</Text>
+            <Text bold>{err.name}</Text>
+          </Box>
+          <Box marginLeft={2}>
+            <Text dim>{err.file}</Text>
+          </Box>
           {err.errors.map((e, j) => (
             <Box key={j} flexDirection="column">
-              <Text>
-                {"  "}
-                {e.message}
-              </Text>
+              <Box marginLeft={2}>
+                <Text>{e.message}</Text>
+              </Box>
               {e.stack?.split("\n").map((line, k) => (
-                <Text key={k}>{s.dim(line)}</Text>
+                <Text key={k} dim>
+                  {line}
+                </Text>
               ))}
             </Box>
           ))}
@@ -573,8 +611,8 @@ class DotzReporter implements Reporter {
       />,
       this.term,
       {
-        mode: "inline",
-        alternateScreen: false,
+        // mode: "inline",
+        // alternateScreen: false,
       },
     )
   }
