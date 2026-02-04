@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach } from 'vitest'
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { getTestSys, isRealSys, isDiskSys } from '../src/env.js'
 
 describe('TEST_SYS environment', () => {
@@ -38,9 +38,11 @@ describe('TEST_SYS environment', () => {
     })
 
     test('returns "fake" for invalid values with warning', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       process.env.TEST_SYS = 'invalid'
       // Should warn and return fake
       expect(getTestSys()).toBe('fake')
+      spy.mockRestore()
     })
   })
 
