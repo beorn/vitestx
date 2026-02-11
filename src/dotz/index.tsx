@@ -26,7 +26,7 @@ import {
   type Term,
   type PatchedConsole,
 } from "inkx"
-import Debug from "debug"
+import { createLogger } from "@beorn/logger"
 
 import {
   createTestStore,
@@ -35,7 +35,7 @@ import {
   type TestStoreState,
 } from "./store.js"
 
-const debug = Debug("vitestx:dotz")
+const log = createLogger("vitestx:dotz")
 
 // =============================================================================
 // Constants & Types (exported for testing)
@@ -723,15 +723,15 @@ class DotzReporter implements Reporter {
       symbols: opts.symbols ?? DEFAULT_SYMBOLS,
     }
     this.store = createTestStore(this.options.slowThreshold)
-    debug("reporter initialized: %O, isTTY: %s", this.options, this.isTTY)
+    log.debug?.(`reporter initialized: ${JSON.stringify(this.options)}, isTTY: ${this.isTTY}`)
   }
 
   onInit(_ctx: Vitest) {
-    debug("onInit")
+    log.debug?.("onInit")
   }
 
   async onTestRunStart(_specs: readonly TestSpecification[]) {
-    debug("onTestRunStart: %d specs", _specs.length)
+    log.debug?.(`onTestRunStart: ${_specs.length} specs`)
     this.store.reset()
     this.store.setRunning(true)
     this.finishedTests.clear()
@@ -766,12 +766,12 @@ class DotzReporter implements Reporter {
   }
 
   onTestModuleCollected(module: TestModule) {
-    debug("onTestModuleCollected: %s", getModuleId(module))
+    log.debug?.(`onTestModuleCollected: ${getModuleId(module)}`)
     for (const test of module.children.allTests()) this.onTestCaseReady(test)
   }
 
   onTestSuiteReady(suite: TestSuite) {
-    debug("onTestSuiteReady: %s", suite.name)
+    log.debug?.(`onTestSuiteReady: ${suite.name}`)
     for (const test of suite.children.allTests()) this.onTestCaseReady(test)
   }
 
@@ -831,7 +831,7 @@ class DotzReporter implements Reporter {
     testModules?: Iterable<TestModule>,
     errors?: readonly unknown[],
   ) {
-    debug("onTestRunEnd", {
+    log.debug?.("onTestRunEnd", {
       testModules: !!testModules,
       errors: (errors as unknown[])?.length,
     })
@@ -839,7 +839,7 @@ class DotzReporter implements Reporter {
   }
 
   async onFinished() {
-    debug("onFinished")
+    log.debug?.("onFinished")
     await this.finishRun()
   }
 
