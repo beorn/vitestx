@@ -24,7 +24,8 @@ Fuzz and chaos tests use `createSeededRandom` for deterministic reproduction:
 import { gen, take, createSeededRandom } from "../src/fuzz/index.js"
 
 test("gen is deterministic with same seed", async () => {
-  const v1: string[] = [], v2: string[] = []
+  const v1: string[] = [],
+    v2: string[] = []
   for await (const v of take(gen(["a", "b"], 42), 10)) v1.push(v)
   for await (const v of take(gen(["a", "b"], 42), 10)) v2.push(v)
   expect(v1).toEqual(v2)
