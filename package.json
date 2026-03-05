@@ -44,19 +44,19 @@
     "vitest": "^4.0.0"
   },
   "peerDependencies": {
-    "@beorn/logger": ">=0.1.0",
-    "inkx": ">=0.1.0",
+    "decant": ">=0.1.0",
+    "@hightea/term": ">=0.1.0",
     "react": ">=19.0.0",
     "vitest": ">=2.0.0"
   },
   "peerDependenciesMeta": {
-    "inkx": {
+    "@hightea/term": {
       "optional": true
     },
     "react": {
       "optional": true
     },
-    "@beorn/logger": {
+    "decant": {
       "optional": true
     }
   }

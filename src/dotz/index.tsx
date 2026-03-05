@@ -9,8 +9,8 @@
 import * as fs from "node:fs"
 import React, { useMemo, useSyncExternalStore, type ReactNode } from "react"
 import type { Reporter, TestCase, TestModule, TestSpecification, TestSuite, Vitest } from "vitest/node"
-import { Box, Text, Console, useContentRect, patchConsole, type Instance, type Term, type PatchedConsole } from "inkx"
-import { createLogger } from "@beorn/logger"
+import { Box, Text, Console, useContentRect, patchConsole, type Instance, type Term, type PatchedConsole } from "@hightea/term"
+import { createLogger } from "decant"
 
 import { createTestStore, type TestState, type TestStore, type TestStoreState } from "./store.js"
 
@@ -617,7 +617,7 @@ class DotzReporter implements Reporter {
     this.prevActEnv = g.IS_REACT_ACT_ENVIRONMENT
     g.IS_REACT_ACT_ENVIRONMENT = false
 
-    const { render, createTerm } = await import("inkx")
+    const { render, createTerm } = await import("@hightea/term")
     const stack = new DisposableStack()
     this.disposables = stack
     this.term = stack.use(createTerm())
@@ -777,7 +777,7 @@ function extractLineNumber(testCase: TestCase) {
 }
 
 async function printSummary(store: TestStore, options: Options) {
-  const { renderStatic } = await import("inkx")
+  const { renderStatic } = await import("@hightea/term")
   const width = process.stdout.columns || 80
   // Use large height to avoid truncation - static output doesn't need fixed height
   const output = await renderStatic(<Report store={store} options={options} width={width} />, { width, height: 1000 })

@@ -5,7 +5,7 @@
  * durations, and categories with support for test retries.
  */
 
-import { createLogger } from "@beorn/logger"
+import { createLogger } from "decant"
 const log = createLogger("vitestx:dotz:store")
 
 // =============================================================================

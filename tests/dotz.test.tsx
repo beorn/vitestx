@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from "vitest"
 import React from "react"
-import { createRenderer } from "inkx/testing"
+import { createRenderer } from "@hightea/term/testing"
 
 import { Report, DEFAULT_SYMBOLS, type Options } from "../src/dotz/index.tsx"
 import { createTestStore, type TestStore } from "../src/dotz/store.js"
