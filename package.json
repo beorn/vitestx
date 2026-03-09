@@ -9,12 +9,12 @@
     "testing",
     "vitest"
   ],
-  "license": "MIT",
-  "author": "Beorn",
   "homepage": "https://beorn.github.io/vitestx/",
   "bugs": {
     "url": "https://github.com/beorn/vitestx/issues"
   },
+  "license": "MIT",
+  "author": "Beorn",
   "repository": {
     "type": "git",
     "url": "https://github.com/beorn/vitestx.git"

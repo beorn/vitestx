@@ -31,18 +31,22 @@ import { drop, reorder, chaos } from "vitestx/chaos"
 const unreliable = reorder(drop(source, 0.2, rng), 5, rng)
 
 // Declarative pipeline
-const chaotic = chaos(source, [
-  { type: "drop", params: { rate: 0.2 } },
-  { type: "reorder", params: { windowSize: 5 } },
-  { type: "duplicate", params: { rate: 0.1 } },
-], rng)
+const chaotic = chaos(
+  source,
+  [
+    { type: "drop", params: { rate: 0.2 } },
+    { type: "reorder", params: { windowSize: 5 } },
+    { type: "duplicate", params: { rate: 0.1 } },
+  ],
+  rng,
+)
 ```
 
 Built-in transformers: `drop`, `reorder`, `duplicate`, `burst`, `initGap`, `delay`. Extend with custom registries.
 
 ## Dotz Reporter
 
-Streaming dot reporter with hightea React TUI. Duration-based symbols, per-package grouping, CI fallback.
+Streaming dot reporter with silvery React TUI. Duration-based symbols, per-package grouping, CI fallback.
 
 ```typescript
 // vitest.config.ts
@@ -53,12 +57,12 @@ export default defineConfig({
 })
 ```
 
-| Symbol | Meaning |
-| ------ | ------- |
+| Symbol | Meaning                               |
+| ------ | ------------------------------------- |
 | `·•●`  | Fast / medium / slow (duration-based) |
-| `x`    | Failed |
-| `-`    | Skipped |
-| `!`    | Noisy (console output) |
+| `x`    | Failed                                |
+| `-`    | Skipped                               |
+| `!`    | Noisy (console output)                |
 
 ## Install
 

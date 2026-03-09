@@ -6,7 +6,7 @@
 bun add vitestx
 ```
 
-vitestx has peer dependencies on `vitest` (required) and optionally `@hightea/term`, `react`, and `decant` (for the Dotz reporter).
+vitestx has peer dependencies on `vitest` (required) and optionally `@silvery/term`, `react`, and `decant` (for the Dotz reporter).
 
 ## Quick Examples
 
@@ -58,10 +58,10 @@ export default defineConfig({
 ## Subpath Exports
 
 ```typescript
-import { test, gen, take, createSeededRandom } from "vitestx"     // Root: re-exports fuzz + utilities
-import { test, gen, take } from "vitestx/fuzz"                     // Fuzz module directly
-import { chaos, drop, reorder } from "vitestx/chaos"               // Chaos stream transformers
-import { vitestx } from "vitestx/plugin"                           // Vitest plugin
+import { test, gen, take, createSeededRandom } from "vitestx" // Root: re-exports fuzz + utilities
+import { test, gen, take } from "vitestx/fuzz" // Fuzz module directly
+import { chaos, drop, reorder } from "vitestx/chaos" // Chaos stream transformers
+import { vitestx } from "vitestx/plugin" // Vitest plugin
 // Dotz reporter: use as --reporter=vitestx/dotz
 ```
 

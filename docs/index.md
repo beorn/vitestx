@@ -19,7 +19,7 @@ features:
   - title: Chaos Streams
     details: "Composable async iterable transformers that simulate unreliable delivery: drops, reordering, duplicates, bursts, delays."
   - title: Dotz Reporter
-    details: "Streaming Vitest reporter with hightea React TUI. Duration-based dots, per-package display, CI fallback."
+    details: "Streaming Vitest reporter with silvery React TUI. Duration-based dots, per-package display, CI fallback."
   - title: Auto-Shrinking
     details: "Delta-debugging automatically reduces failing sequences to the minimal reproduction. No manual bisecting."
   - title: Seeded RNG

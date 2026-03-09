@@ -1,8 +1,8 @@
 /**
- * DotzReporter - hightea-based Vitest Reporter
+ * DotzReporter - silvery-based Vitest Reporter
  *
- * Renders test results using hightea React components.
- * All output goes through hightea - layout, colors, everything.
+ * Renders test results using silvery React components.
+ * All output goes through silvery - layout, colors, everything.
  * Zero manual ANSI. Every color, alignment, spacing is a component prop or flex layout.
  */
 

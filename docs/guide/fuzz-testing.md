@@ -133,20 +133,20 @@ All randomness flows through a seeded RNG for reproducibility:
 import { createSeededRandom } from "vitestx"
 
 const rng = createSeededRandom(42)
-rng.int(0, 100)        // deterministic integer in [min, max]
-rng.float()            // deterministic float in [0, 1)
-rng.pick(["a", "b"])   // deterministic pick from array
-rng.bool(0.3)          // 30% chance of true
+rng.int(0, 100) // deterministic integer in [min, max]
+rng.float() // deterministic float in [0, 1)
+rng.pick(["a", "b"]) // deterministic pick from array
+rng.bool(0.3) // 30% chance of true
 rng.shuffle([1, 2, 3]) // deterministic shuffle
-rng.fork()             // independent child stream
+rng.fork() // independent child stream
 ```
 
 ### Environment Variables
 
-| Variable       | Effect                                              |
-| -------------- | --------------------------------------------------- |
-| `FUZZ_SEED`    | Fixed seed for all fuzz tests                       |
-| `FUZZ_REPEATS` | Run each fuzz test N times with different seeds     |
+| Variable       | Effect                                          |
+| -------------- | ----------------------------------------------- |
+| `FUZZ_SEED`    | Fixed seed for all fuzz tests                   |
+| `FUZZ_REPEATS` | Run each fuzz test N times with different seeds |
 
 ```bash
 # Reproduce a specific failure

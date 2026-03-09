@@ -14,10 +14,10 @@ The main Vitest reporter class. Implements the Vitest `Reporter` interface.
 
 ```typescript
 interface ReporterOptions {
-  slowThreshold?: number  // Duration (ms) to consider a test "slow" (default: 100)
-  perfOutput?: string     // File path to write performance JSON (default: "")
-  showSlow?: boolean      // Show slow test summary after run (default: true)
-  symbols?: string[]      // Duration dot symbols (default: ["·", "•", "●"])
+  slowThreshold?: number // Duration (ms) to consider a test "slow" (default: 100)
+  perfOutput?: string // File path to write performance JSON (default: "")
+  showSlow?: boolean // Show slow test summary after run (default: true)
+  symbols?: string[] // Duration dot symbols (default: ["·", "•", "●"])
 }
 ```
 
@@ -50,9 +50,9 @@ export default defineConfig({
 ## Constants
 
 ```typescript
-const MAX_SLOW_TESTS = 20         // Maximum slow tests shown in summary
-const DURATION_MULTIPLIER = 10    // Symbol range: 0x to 10x threshold
-const UNMOUNT_DELAY_MS = 50       // Delay before unmounting hightea app
+const MAX_SLOW_TESTS = 20 // Maximum slow tests shown in summary
+const DURATION_MULTIPLIER = 10 // Symbol range: 0x to 10x threshold
+const UNMOUNT_DELAY_MS = 50 // Delay before unmounting silvery app
 const DEFAULT_SYMBOLS = ["·", "•", "●"]
 ```
 
@@ -60,28 +60,24 @@ const DEFAULT_SYMBOLS = ["·", "•", "●"]
 
 ```typescript
 const STATUS_DOTS = {
-  failed:  { char: "x", color: "red",     label: "fail" },
-  skipped: { char: "-", color: "gray",     dim: true, label: "skip" },
-  pending: { char: "*", color: "yellow",   label: "pending" },
-  noisy:   { char: "!", color: "magenta",  label: "noisy" },
+  failed: { char: "x", color: "red", label: "fail" },
+  skipped: { char: "-", color: "gray", dim: true, label: "skip" },
+  pending: { char: "*", color: "yellow", label: "pending" },
+  noisy: { char: "!", color: "magenta", label: "noisy" },
 }
 ```
 
 ## durationToSymbol()
 
 ```typescript
-function durationToSymbol(
-  duration: number,
-  threshold: number,
-  symbols: string[]
-): { char: string; bright: boolean }
+function durationToSymbol(duration: number, threshold: number, symbols: string[]): { char: string; bright: boolean }
 ```
 
 Maps a test duration to a symbol and brightness. The range `[0, threshold * DURATION_MULTIPLIER]` maps linearly across the symbol array. Tests exceeding the range get the last symbol with `bright: true`.
 
 ## React Components
 
-The reporter renders using hightea React components. These are exported for testing:
+The reporter renders using silvery React components. These are exported for testing:
 
 ### Report
 
@@ -91,8 +87,8 @@ function Report(props: ReportProps): JSX.Element
 interface ReportProps {
   store: TestStore
   options: Options
-  width?: number              // Override width (bypasses useContentRect)
-  console?: PatchedConsole    // Captured console output
+  width?: number // Override width (bypasses useContentRect)
+  console?: PatchedConsole // Captured console output
 }
 ```
 
@@ -125,6 +121,6 @@ Lists all failed tests with error messages and stack traces.
 ## Formatting Helpers
 
 ```typescript
-function fmtDuration(ms: number): string  // "42ms", "1.50s", "2m 30s"
-function fmtMs(ms: number): string        // "42ms", "1.5s"
+function fmtDuration(ms: number): string // "42ms", "1.50s", "2m 30s"
+function fmtMs(ms: number): string // "42ms", "1.5s"
 ```

@@ -22,8 +22,8 @@ type Picker<T> =
 
 ```typescript
 interface PickerContext {
-  random: SeededRandom  // Seeded RNG instance
-  iteration: number     // Current iteration (0-indexed)
+  random: SeededRandom // Seeded RNG instance
+  iteration: number // Current iteration (0-indexed)
 }
 ```
 
@@ -34,7 +34,10 @@ interface PickerContext {
 gen(["a", "b", "c"])
 
 // Weighted
-gen([[80, "common"], [20, "rare"]])
+gen([
+  [80, "common"],
+  [20, "rare"],
+])
 
 // Custom sync
 gen((ctx) => ctx.random.pick(items))
@@ -81,10 +84,10 @@ Wraps vitest `test()` with fuzz infrastructure. When `FUZZ_REPEATS > 1`, registe
 
 ```typescript
 interface FuzzTestOptions extends TestOptions {
-  seed?: number            // Default: from FUZZ_SEED env or Date.now()
-  shrink?: boolean         // Default: true
-  save?: boolean           // Default: true
-  replay?: boolean         // Default: true
+  seed?: number // Default: from FUZZ_SEED env or Date.now()
+  shrink?: boolean // Default: true
+  save?: boolean // Default: true
+  replay?: boolean // Default: true
   maxShrinkAttempts?: number // Default: 100
 }
 ```
@@ -93,10 +96,10 @@ interface FuzzTestOptions extends TestOptions {
 
 ```typescript
 class FuzzError extends Error {
-  readonly sequence: unknown[]   // Minimal failing sequence
-  readonly shrunk: unknown[]     // Same as sequence
-  readonly seed: number          // Seed for reproduction
-  readonly originalError: Error  // The original assertion error
+  readonly sequence: unknown[] // Minimal failing sequence
+  readonly shrunk: unknown[] // Same as sequence
+  readonly seed: number // Seed for reproduction
+  readonly originalError: Error // The original assertion error
 }
 ```
 
@@ -114,15 +117,15 @@ Creates a deterministic random number generator using a Linear Congruential Gene
 
 ```typescript
 interface SeededRandom {
-  seed: number                                  // Current seed state
-  int(min: number, max: number): number         // Random integer in [min, max]
-  float(): number                               // Random float in [0, 1)
-  pick<T>(array: readonly T[]): T               // Random element from array
+  seed: number // Current seed state
+  int(min: number, max: number): number // Random integer in [min, max]
+  float(): number // Random float in [0, 1)
+  pick<T>(array: readonly T[]): T // Random element from array
   weightedPick<T>(items: readonly T[], weights: Partial<Record<T, number>>): T
-  shuffle<T>(array: readonly T[]): T[]           // Shuffled copy
-  array<T>(length: number, gen: () => T): T[]   // Random array
-  bool(probability?: number): boolean            // Random boolean (default: 0.5)
-  fork(): SeededRandom                           // Independent child stream
+  shuffle<T>(array: readonly T[]): T[] // Shuffled copy
+  array<T>(length: number, gen: () => T): T[] // Random array
+  bool(probability?: number): boolean // Random boolean (default: 0.5)
+  fork(): SeededRandom // Independent child stream
 }
 ```
 
@@ -132,7 +135,7 @@ interface SeededRandom {
 function shrinkSequence<T>(
   sequence: T[],
   runTest: (seq: T[]) => Promise<boolean>,
-  options?: ShrinkOptions
+  options?: ShrinkOptions,
 ): Promise<ShrinkResult<T>>
 ```
 
@@ -142,8 +145,8 @@ Delta-debugging algorithm that reduces a failing sequence to its minimal form.
 
 ```typescript
 interface ShrinkOptions {
-  maxAttempts?: number  // Default: 100
-  minLength?: number    // Default: 1
+  maxAttempts?: number // Default: 100
+  minLength?: number // Default: 1
 }
 ```
 
@@ -151,8 +154,8 @@ interface ShrinkOptions {
 
 ```typescript
 interface ShrinkResult<T> {
-  original: T[]    // Original failing sequence
-  shrunk: T[]      // Minimal failing sequence
+  original: T[] // Original failing sequence
+  shrunk: T[] // Minimal failing sequence
   attempts: number // Number of attempts made
   reduced: boolean // Whether shrinking found a smaller sequence
 }
@@ -212,11 +215,11 @@ Clears all saved cases for a test file.
 
 ```typescript
 interface SavedCase {
-  test: string           // Test name
-  seed: number           // Seed used for generation
-  sequence: unknown[]    // Minimal failing sequence
-  error: string          // Error message
-  timestamp: string      // ISO timestamp
+  test: string // Test name
+  seed: number // Seed used for generation
+  sequence: unknown[] // Minimal failing sequence
+  error: string // Error message
+  timestamp: string // ISO timestamp
   originalLength?: number // Original length before shrinking
 }
 ```
@@ -225,10 +228,10 @@ interface SavedCase {
 
 ```typescript
 interface FuzzContext {
-  history: unknown[]              // Recorded yielded values
+  history: unknown[] // Recorded yielded values
   replaySequence: unknown[] | null // Sequence to replay (if replaying)
-  replayIndex: number             // Current replay position
-  seed: number                    // Seed for this run
+  replayIndex: number // Current replay position
+  seed: number // Seed for this run
 }
 ```
 

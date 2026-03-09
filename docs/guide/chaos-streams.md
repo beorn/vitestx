@@ -80,16 +80,7 @@ const slow = delay(source, 1, 50, rng) // 1-50ms delay per item
 Transformers compose naturally since they all take and return `AsyncIterable<T>`:
 
 ```typescript
-const pipeline = delay(
-  duplicate(
-    reorder(
-      drop(source, 0.2, rng),
-      5, rng
-    ),
-    0.1, rng
-  ),
-  1, 10, rng
-)
+const pipeline = delay(duplicate(reorder(drop(source, 0.2, rng), 5, rng), 0.1, rng), 1, 10, rng)
 ```
 
 ## chaos() Combinator
@@ -99,25 +90,29 @@ For declarative pipelines, use the `chaos()` combinator:
 ```typescript
 import { chaos } from "vitestx/chaos"
 
-const chaotic = chaos(source, [
-  { type: "drop", params: { rate: 0.2 } },
-  { type: "reorder", params: { windowSize: 5 } },
-  { type: "duplicate", params: { rate: 0.1 } },
-], rng)
+const chaotic = chaos(
+  source,
+  [
+    { type: "drop", params: { rate: 0.2 } },
+    { type: "reorder", params: { windowSize: 5 } },
+    { type: "duplicate", params: { rate: 0.1 } },
+  ],
+  rng,
+)
 ```
 
 ### Built-in Registry
 
 The `chaos()` combinator ships with all six transformers registered:
 
-| Type          | Params                            | Default         |
-| ------------- | --------------------------------- | --------------- |
-| `drop`        | `{ rate: number }`                | `rate: 0.2`     |
-| `reorder`     | `{ windowSize: number }`          | `windowSize: 5` |
-| `duplicate`   | `{ rate: number }`                | `rate: 0.3`     |
-| `burst`       | `{ burstSize: number }`           | `burstSize: 10` |
-| `init_gap`    | `{ count: number }`              | `count: 5`      |
-| `delay`       | `{ minMs: number, maxMs: number }`| `1ms, 5ms`      |
+| Type        | Params                             | Default         |
+| ----------- | ---------------------------------- | --------------- |
+| `drop`      | `{ rate: number }`                 | `rate: 0.2`     |
+| `reorder`   | `{ windowSize: number }`           | `windowSize: 5` |
+| `duplicate` | `{ rate: number }`                 | `rate: 0.3`     |
+| `burst`     | `{ burstSize: number }`            | `burstSize: 10` |
+| `init_gap`  | `{ count: number }`                | `count: 5`      |
+| `delay`     | `{ minMs: number, maxMs: number }` | `1ms, 5ms`      |
 
 ## Custom Registries
 
