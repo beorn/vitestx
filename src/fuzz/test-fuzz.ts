@@ -235,7 +235,7 @@ const fuzz: FuzzFn = (
 /**
  * Extended test object with fuzz method
  */
-export const test = Object.assign(vitestTest, { fuzz })
+export const test: typeof vitestTest & { fuzz: typeof fuzz } = Object.assign(vitestTest, { fuzz })
 
 // Re-export vitest test types
 export { describe, expect, it, beforeAll, afterAll, beforeEach, afterEach } from "vitest"

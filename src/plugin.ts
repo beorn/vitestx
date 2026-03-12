@@ -22,7 +22,12 @@
  * ```
  */
 
-import type { Plugin } from "vite"
+/** Minimal Vite plugin interface — avoids requiring vite as a dependency */
+interface Plugin {
+  name: string
+  config?(): void
+  configureServer?(server: unknown): void
+}
 
 export interface ViMonkeyFuzzOptions {
   /** Number of actions per test run (default: 100) */
